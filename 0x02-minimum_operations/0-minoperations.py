@@ -24,3 +24,4 @@ def minOperations(n):
             n /= index
         index += 1
     return result
+
