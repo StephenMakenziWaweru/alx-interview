@@ -1,16 +1,19 @@
 #!/usr/bin/python3
-"""
-Returns a list of lists of integers representing the Pascals triangle
-"""
-from math import factorial
+'''
+Return list representing the Pascal's triangle of n
+'''
+
+
 def pascal_triangle(n):
-    """returns pascal's triangle ints"""
+    '''returns empty list if n <= 0'''
+    pascal_list = []
     if n <= 0:
-        return []
-    pascal = []
+        return pascal_list
     for i in range(n):
-        pascal_temp = []
-        for j in range(i + 1):
-            pascal_temp.append(factorial(i)//(factorial(j)*factorial(i-j)))
-        pascal.append(pascal_temp)
-    return pascal
+        row = [1]
+        if pascal_list:
+            last_row = pascal_list[-1]
+            row.extend([sum(pair) for pair in zip(last_row, last_row[1:])])
+            row.append(1)
+        pascal_list.append(row)
+    return (pascal_list)
