@@ -1,71 +1,44 @@
-#!/usr/bin/python3
-""" This is my problem :'v """
+!/usr/bin/python3
+"""
+Log parsing
+"""
 import sys
-import re
-import signal
-from collections import OrderedDict
 
 
-def search_items(line, s):
-    """ Search the items to positionate """
-    regexu = r"\s\d{3}\s\d{1,}"
-    txt = re.search(regexu, line)
-    word = txt.group()
-    word = word[1:]
-
-    regexd = r"\d{3}\s"
-    left = re.search(regexd, word)
-
-    code = left.group()
-    code = code[:-1]
-
-    regext = r"\s\d{1,}"
-    right = re.search(regext, word)
-
-    size = right.group()
-    size = size[1:]
-    size = int(size)
-
-    add_code(code, s)
-
-    return size
+def print_metrics(file_size, status_codes):
+    """
+    Print metrics
+    """
+    print("File size: {}".format(file_size))
+    codes_sorted = sorted(status_codes.keys())
+    for code in codes_sorted:
+        if status_codes[code] > 0:
+            print("{}: {}".format(code, status_codes[code]))
 
 
-def add_code(code, codes):
-    """ Count the status code """
-    try:
-        codes[code] += 1
-    except KeyError:
-        pass
-
-
-def print_all(stat):
-    """ Print all """
-    stat = OrderedDict(stat)
-
-    for key, value in stat.items():
-        if value is not 0:
-            print("{}: {}".format(key, value))
-
+codes_count = {'200': 0, '301': 0, '400': 0, '401': 0,
+               '403': 0, '404': 0, '405': 0, '500': 0}
+file_size_total = 0
+count = 0
 
 if __name__ == "__main__":
-    status = {"200": 0, "301": 0, "400": 0, "401": 0,
-              "403": 0, "404": 0, "405": 0, "500": 0}
-    file_size = 0
-    i = 0
-
     try:
-        for lines in sys.stdin:
-            file_size += search_items(lines, status)
-
-            if i is not 0 and i % 9 == 0:
-                print("File size: {:d}".format(file_size))
-                print_all(status)
-
-            i += 1
+        for line in sys.stdin:
+            try:
+                status_code = line.split()[-2]
+                if status_code in codes_count.keys():
+                    codes_count[status_code] += 1
+                # Grab file size
+                file_size = int(line.split()[-1])
+                file_size_total += file_size
+            except Exception:
+                pass
+            # print metrics if 10 lines have been read
+            count += 1
+            if count == 10:
+                print_metrics(file_size_total, codes_count)
+                count = 0
     except KeyboardInterrupt:
-        pass
-    finally:
-        print("File size: {:d}".format(file_size))
-        print_all(status)
-        sys.exit(0)
+        print_metrics(file_size_total, codes_count)
+        raise
+   print_metrics(file_size_total, codes_count)
