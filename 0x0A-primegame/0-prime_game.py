@@ -27,4 +27,3 @@ def isWinner(x, nums):
     if plyr1 * 2 > len(nums):
         return "Maria"
     return "Ben"
-    
